@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Hold to Book CTA</title>
+
+  <style>
+    :root { color-scheme: light dark; }
+
+    html, body{
+      margin:0;
+      padding:0;
+      background: transparent;
+      -webkit-user-select:none;
+      user-select:none;
+      -webkit-touch-callout:none;
+    }
+
+    body{
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    }
+
+    .lux-cta{
+      --size: 130px;
+      --scaleAll: 0.85;
+      --press: 0;
+
+      width: var(--size);
+      height: var(--size);
+      display:grid;
+      place-items:center;
+      position: relative;
+
+      transform: scale(var(--scaleAll));
+      transform-origin: 50% 50%;
+
+      -webkit-user-select:none;
+      user-select:none;
+      -webkit-touch-callout:none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      cursor:pointer;
+    }
+    .lux-cta, .lux-cta *{
+      -webkit-user-select:none;
+      user-select:none;
+      -webkit-touch-callout:none;
+    }
+
+    .lux-stage{
+      width:100%;
+      height:100%;
+      position:relative;
+      border-radius: 999px;
+      overflow:hidden;
+
+      clip-path: circle(49.7% at 50% 50%);
+      -webkit-clip-path: circle(49.7% at 50% 50%);
+      -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 99%, transparent 100%);
+      mask-image: radial-gradient(circle at 50% 50%, #000 99%, transparent 100%);
+
+      display:grid;
+      place-items:center;
+
+      background:
+        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.12), rgba(0,0,0,0) 46%),
+        radial-gradient(circle at 50% 40%, rgba(255,255,255,0.07), rgba(0,0,0,0.55) 58%, rgba(0,0,0,0.88)),
+        linear-gradient(180deg, rgba(18,18,18,0.98), rgba(6,6,6,0.98));
+
+      box-shadow:
+        0 22px 55px rgba(0,0,0,0.28),
+        0 10px 20px rgba(0,0,0,0.16),
+        inset 0 1px 0 rgba(255,255,255,0.18),
+        inset 0 -10px 22px rgba(0,0,0,0.55);
+
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+
+      perspective: 720px;
+      transform-style: preserve-3d;
+      isolation: isolate;
+    }
+
+    .lux-stage::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 30% 18%, rgba(255,255,255,0.16), rgba(255,255,255,0) 42%),
+        radial-gradient(circle at 75% 82%, rgba(255,255,255,0.10), rgba(255,255,255,0) 52%),
+        linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0));
+      opacity: 0.95;
+      pointer-events:none;
+      mix-blend-mode: screen;
+      z-index: 1;
+    }
+
+    .lux-svg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      border-radius: 999px;
+      pointer-events:none;
+      z-index: 2;
+    }
+
+    /* circular name (JS placed) */
+    .lux-nameRing{
+      position:absolute;
+      inset:0;
+      border-radius:999px;
+      pointer-events:none;
+      z-index: 3;
+      opacity: 0;
+      transition: opacity 160ms ease;
+    }
+    .lux-nameRing.is-ready{ opacity: 1; }
+    .lux-nameRing .ch{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform-origin: 0 0;
+      font-weight: 750;
+      font-size: 11.2px;
+      letter-spacing: 1.1px;
+      color: rgba(195, 200, 210, 0.92);
+      text-shadow:
+        0 1px 0 rgba(0,0,0,0.55),
+        0 10px 18px rgba(0,0,0,0.35);
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.08));
+      white-space: pre;
+    }
+
+    .lux-ring{
+      transform-origin:110px 110px;
+      animation: luxBreath 2.7s ease-in-out infinite;
+    }
+    @keyframes luxBreath{
+      0%{ transform: scale(0.978); opacity:0.82; }
+      50%{ transform: scale(1.065); opacity:1; }
+      100%{ transform: scale(0.978); opacity:0.82; }
+    }
+
+    .lux-holdTrack{
+      opacity: 0;
+      transition: opacity 160ms ease;
+    }
+    .lux-cta.is-holding .lux-holdTrack{ opacity: 1; }
+    .lux-holdTrack .track{ opacity: 0.20; }
+    .lux-holdTrack .progress{
+      opacity: 0.95;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 60ms linear;
+      filter: drop-shadow(0 0 8px rgba(255,255,255,0.10));
+    }
+
+    .lux-ripples{ position:absolute; inset:0; border-radius:999px; pointer-events:none; z-index:4; }
+    .lux-ripple{
+      position:absolute; left:50%; top:50%;
+      width:18px; height:18px; border-radius:999px;
+      border: 2px solid rgba(255,255,255,0.92);
+      transform: translate(-50%, -50%) scale(0.25);
+      opacity:0;
+      filter: drop-shadow(0 0 12px rgba(255,255,255,0.20));
+    }
+    .lux-ripple.go{ animation: luxRipple 760ms ease-out 1; animation-delay: var(--delay, 0ms); }
+    @keyframes luxRipple{
+      0%{
+        opacity:0;
+        border-color: rgba(255,255,255,0.95);
+        box-shadow: 0 0 0 rgba(255,255,255,0);
+        transform: translate(calc(-50% + var(--x)*1px), calc(-50% + var(--y)*1px)) scale(0.22);
+      }
+      12%{
+        opacity:0.95;
+        border-color: rgba(255,255,255,0.92);
+        box-shadow: 0 0 14px rgba(255,255,255,0.22);
+      }
+      55%{
+        border-color: rgba(210,215,225,0.88);
+        box-shadow: 0 0 18px rgba(220,225,235,0.18);
+      }
+      100%{
+        opacity:0;
+        border-color: rgba(185,190,205,0.72);
+        box-shadow: 0 0 24px rgba(210,215,230,0.14);
+        transform: translate(calc(-50% + var(--x)*1px), calc(-50% + var(--y)*1px))
+          scale(calc(7.6 + var(--press)*3.2));
+      }
+    }
+
+    .lux-fingerflash{
+      position:absolute;
+      left:50%; top:50%;
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      opacity:0;
+      pointer-events:none;
+      z-index: 10;
+      mix-blend-mode: screen;
+      transform: translate(-50%, -50%) scale(0.6);
+      background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(255,255,255,0.35) 35%, rgba(255,255,255,0) 70%);
+      filter: blur(0.2px);
+      will-change: transform, opacity, filter;
+    }
+    .lux-fingerflash.go{ animation: luxFingerFlash 220ms ease-out 1; }
+    @keyframes luxFingerFlash{
+      0%{ opacity:0; transform: translate(calc(-50% + var(--fx)*1px), calc(-50% + var(--fy)*1px)) scale(0.45); filter: blur(0.9px); }
+      35%{ opacity:1; transform: translate(calc(-50% + var(--fx)*1px), calc(-50% + var(--fy)*1px)) scale(3.0); filter: blur(0.15px); }
+      100%{ opacity:0; transform: translate(calc(-50% + var(--fx)*1px), calc(-50% + var(--fy)*1px)) scale(4.2); filter: blur(1.1px); }
+    }
+
+    .lux-sparks{ position:absolute; inset:0; border-radius:999px; pointer-events:none; z-index:7; mix-blend-mode: screen; }
+    .lux-spark{
+      position:absolute; left:50%; top:50%;
+      opacity:0;
+      width:3px; height:3px; border-radius:999px;
+      background: radial-gradient(circle, rgba(255,255,255,0.98) 0%, rgba(220,225,235,0.82) 30%, rgba(190,195,210,0.0) 78%);
+      box-shadow: 0 0 14px rgba(245,245,255,0.22), 0 0 22px rgba(205,210,225,0.14);
+      transform: translate(-50%, -50%);
+      will-change: transform, opacity, filter;
+    }
+
+    /* sparkle streaks */
+    .lux-glints{ position:absolute; inset:0; border-radius:999px; pointer-events:none; z-index:6; mix-blend-mode: screen; }
+    .lux-glint{
+      position:absolute;
+      left:50%; top:50%;
+      width: 28px;
+      height: 2px;
+      border-radius: 999px;
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(var(--a)) scaleX(0.4);
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.0),
+        rgba(255,255,255,0.95),
+        rgba(255,255,255,0.0)
+      );
+      filter: blur(0.25px);
+      will-change: transform, opacity;
+    }
+    .lux-glint.go{ animation: luxGlint 420ms ease-out 1; }
+    @keyframes luxGlint{
+      0%{ opacity:0; transform: translate(calc(-50% + var(--x)*1px), calc(-50% + var(--y)*1px)) rotate(var(--a)) scaleX(0.35); }
+      25%{ opacity:1; transform: translate(calc(-50% + var(--x)*1px), calc(-50% + var(--y)*1px)) rotate(var(--a)) scaleX(1.15); }
+      100%{ opacity:0; transform: translate(calc(-50% + var(--x)*1px), calc(-50% + var(--y)*1px)) rotate(var(--a)) scaleX(0.55); }
+    }
+
+    /* ✅ NEW: falling glitter */
+    .lux-falls{ position:absolute; inset:0; border-radius:999px; pointer-events:none; z-index:5; mix-blend-mode: screen; }
+    .lux-fall{
+      position:absolute;
+      left:50%; top:50%;
+      width: 3px; height: 3px;
+      border-radius: 999px;
+      opacity: 0;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(255,255,255,0.98) 0%, rgba(220,225,235,0.35) 55%, rgba(220,225,235,0.0) 75%);
+      box-shadow: 0 0 10px rgba(255,255,255,0.16);
+      will-change: transform, opacity;
+    }
+    .lux-fall.go{ animation: luxFall var(--dur, 900ms) ease-in 1; }
+    @keyframes luxFall{
+      0%{
+        opacity:0;
+        transform: translate(calc(-50% + var(--x)*1px), calc(-50% + var(--y)*1px)) scale(0.9);
+      }
+      12%{ opacity:1; }
+      100%{
+        opacity:0;
+        transform:
+          translate(
+            calc(-50% + (var(--x) + var(--dx)) * 1px),
+            calc(-50% + (var(--y) + var(--dy)) * 1px)
+          )
+          scale(0.75);
+      }
+    }
+
+    .lux-hand{
+      position:absolute;
+      left:50%;
+      top:50%;
+      z-index: 8;
+      transform-style: preserve-3d;
+      pointer-events:none;
+      will-change: transform, opacity, filter;
+      transform: translate3d(-50%, -50%, 0);
+    }
+    .lux-icon{
+      font-size:72px;
+      line-height:1;
+      font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif;
+      filter: drop-shadow(0 10px 22px rgba(0,0,0,0.45));
+    }
+
+    .lux-palmpulse{
+      --px: 6px;
+      --py: 14px;
+      position:absolute;
+      left:50%;
+      top:50%;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      opacity: 0;
+      pointer-events:none;
+      z-index: 9;
+      mix-blend-mode: screen;
+      transform: translate(calc(-50% + var(--px)), calc(-50% + var(--py))) scale(0.15);
+      background: radial-gradient(circle, rgba(255,255,255,0.90) 0%, rgba(225,230,240,0.45) 35%, rgba(195,200,215,0.14) 60%, rgba(195,200,215,0.0) 75%);
+      box-shadow: 0 0 18px rgba(255,255,255,0.12), 0 0 30px rgba(220,225,235,0.10);
+      filter: blur(0.25px);
+      will-change: transform, opacity, filter;
+    }
+    .lux-palmpulse.go{ animation: luxPalmPulse 520ms ease-out 1; }
+    @keyframes luxPalmPulse{
+      0%{ opacity: 0; transform: translate(calc(-50% + var(--px)), calc(-50% + var(--py))) scale(0.12); filter: blur(0.9px); }
+      18%{ opacity: 1; transform: translate(calc(-50% + var(--px)), calc(-50% + var(--py))) scale(1.15); filter: blur(0.15px); }
+      100%{ opacity: 0; transform: translate(calc(-50% + var(--px)), calc(-50% + var(--py))) scale(7.2); filter: blur(1.2px); }
+    }
+
+    .lux-ghost{
+      position:absolute;
+      left:0; top:0;
+      font-size:72px;
+      line-height:1;
+      font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif;
+      opacity:0;
+      pointer-events:none;
+      mix-blend-mode: screen;
+      filter: blur(0.2px);
+      will-change: transform, opacity, filter;
+    }
+    .lux-ghost.g1{ color: rgba(255,255,255,0.80); text-shadow: 0 0 12px rgba(255,255,255,0.14); }
+    .lux-ghost.g2{ color: rgba(215,220,232,0.72); text-shadow: 0 0 16px rgba(235,240,250,0.10); }
+
+    .lux-hand.splay .lux-ghost{ animation: luxSplay 170ms ease-out 1; }
+    .lux-hand.splay .lux-ghost.g2{ animation-delay: 12ms; }
+    @keyframes luxSplay{
+      0%{ opacity:0; transform: translate(0,0) scale(1); filter: blur(0.6px); }
+      40%{ opacity:0.85; transform: translate(calc(var(--sx)*1px), calc(var(--sy)*1px)) scale(1.01); filter: blur(0.2px); }
+      100%{ opacity:0; transform: translate(calc(var(--sx)*1px), calc(var(--sy)*1px)) scale(1.01); filter: blur(0.9px); }
+    }
+
+    .lux-hand.hi5{ animation: luxHi5 480ms cubic-bezier(.10,.92,.18,1) 1; }
+    @keyframes luxHi5{
+      0%{
+        transform:
+          translate3d(calc(-50% + var(--fromX)*1px), calc(-50% + var(--fromY)*1px), -420px)
+          rotateX(calc(var(--rx0)*1deg)) rotateY(calc(var(--ry0)*1deg)) rotateZ(calc(var(--rz0)*1deg))
+          scale(0.16);
+        opacity: 0.45;
+        filter: blur(2.2px);
+      }
+      22%{
+        transform:
+          translate3d(calc(-50% + var(--midX)*1px), calc(-50% + var(--midY)*1px), -160px)
+          rotateX(calc(var(--rxM)*1deg)) rotateY(calc(var(--ryM)*1deg)) rotateZ(calc(var(--rzM)*1deg))
+          scale(0.62);
+        opacity: 0.9;
+        filter: blur(0.8px);
+      }
+      46%{
+        transform:
+          translate3d(calc(-50% + var(--toX)*1px), calc(-50% + var(--toY)*1px), 24px)
+          rotateX(calc(var(--rx1)*1deg)) rotateY(calc(var(--ry1)*1deg)) rotateZ(calc(var(--rz1)*1deg))
+          scale(1.10);
+        opacity: 1;
+        filter: blur(0px);
+      }
+      60%{
+        transform:
+          translate3d(calc(-50% + var(--toX)*1px), calc(-50% + var(--toY)*1px), 92px)
+          rotateX(calc(var(--rx2)*1deg)) rotateY(calc(var(--ry2)*1deg)) rotateZ(calc(var(--rz2)*1deg))
+          scale(1.26);
+      }
+      70%{
+        transform:
+          translate3d(calc(-50% + var(--toX)*1px), calc(-50% + var(--toY)*1px), 10px)
+          rotateX(calc(var(--rx3)*1deg)) rotateY(calc(var(--ry3)*1deg)) rotateZ(calc(var(--rz3)*1deg))
+          scale(0.98);
+      }
+      86%{
+        transform:
+          translate3d(calc(-50% + var(--toX)*1px), calc(-50% + var(--toY)*1px), 0px)
+          rotateX(calc(var(--rx4)*1deg)) rotateY(calc(var(--ry4)*1deg)) rotateZ(calc(var(--rz4)*1deg))
+          scale(1.05);
+      }
+      100%{
+        transform:
+          translate3d(calc(-50% + var(--toX)*1px), calc(-50% + var(--toY)*1px), 0px)
+          rotateX(calc(var(--rx5)*1deg)) rotateY(calc(var(--ry5)*1deg)) rotateZ(calc(var(--rz5)*1deg))
+          scale(1.00);
+        opacity: 1;
+        filter: blur(0px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="lux-cta" id="luxCta" role="button" aria-label="Booking">
+    <div class="lux-stage" id="luxStage">
+      <svg class="lux-svg" viewBox="0 0 220 220" width="100%" height="100%" aria-hidden="true">
+        <defs>
+          <filter id="luxBrushed" x="-70%" y="-70%" width="240%" height="240%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9 0.03" numOctaves="2" seed="2" result="noise"/>
+            <feColorMatrix in="noise" type="matrix"
+              values="1 0 0 0 0
+                      0 1 0 0 0
+                      0 0 1 0 0
+                      0 0 0 .55 0" result="n2"/>
+            <feDisplacementMap in="SourceGraphic" in2="n2" scale="1.6" xChannelSelector="R" yChannelSelector="G" result="disp"/>
+            <feGaussianBlur in="disp" stdDeviation="0.25" result="soft"/>
+            <feMerge>
+              <feMergeNode in="soft"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+
+          <linearGradient id="luxMetalStroke" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%"   stop-color="rgba(255,255,255,1.00)"></stop>
+            <stop offset="12%"  stop-color="rgba(105,110,122,0.98)"></stop>
+            <stop offset="28%"  stop-color="rgba(255,255,255,1.00)"></stop>
+            <stop offset="44%"  stop-color="rgba(90,95,108,0.98)"></stop>
+            <stop offset="62%"  stop-color="rgba(250,250,255,1.00)"></stop>
+            <stop offset="78%"  stop-color="rgba(130,135,148,0.98)"></stop>
+            <stop offset="100%" stop-color="rgba(245,245,250,1.00)"></stop>
+          </linearGradient>
+
+          <filter id="luxMetalGlow" x="-70%" y="-70%" width="240%" height="240%">
+            <feGaussianBlur stdDeviation="1.9" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+
+          <radialGradient id="luxVignette" cx="50%" cy="42%" r="70%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.04)"></stop>
+            <stop offset="65%" stop-color="rgba(0,0,0,0)"></stop>
+            <stop offset="100%" stop-color="rgba(0,0,0,0.28)"></stop>
+          </radialGradient>
+        </defs>
+
+        <circle cx="110" cy="110" r="98" fill="url(#luxVignette)" />
+        <circle class="lux-ring" cx="110" cy="110" r="76" fill="none"
+          stroke="url(#luxMetalStroke)" stroke-width="9" stroke-linecap="round"
+          filter="url(#luxMetalGlow) url(#luxBrushed)" />
+        <circle cx="110" cy="110" r="67" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
+
+        <g class="lux-holdTrack" id="holdTrack">
+          <g transform="rotate(-90 110 110)">
+            <circle class="track" cx="110" cy="110" r="86" fill="none"
+              stroke="rgba(255,255,255,0.55)" stroke-width="3" />
+            <circle class="progress" id="holdProgress" cx="110" cy="110" r="86" fill="none"
+              stroke="rgba(255,255,255,0.95)" stroke-width="3"
+              stroke-dasharray="0 9999" stroke-dashoffset="0" />
+          </g>
+        </g>
+      </svg>
+
+      <div class="lux-nameRing" id="luxNameRing" aria-hidden="true"></div>
+      <div class="lux-ripples" id="luxRipples" aria-hidden="true"></div>
+      <div class="lux-falls" id="luxFalls" aria-hidden="true"></div>
+      <div class="lux-glints" id="luxGlints" aria-hidden="true"></div>
+      <div class="lux-sparks" id="luxSparks" aria-hidden="true"></div>
+      <div class="lux-fingerflash" id="luxFingerFlash" aria-hidden="true"></div>
+
+      <div class="lux-hand" id="luxHand" aria-hidden="true">
+        <div class="lux-palmpulse" id="luxPalmPulse" aria-hidden="true"></div>
+        <div class="lux-ghost g1" id="luxGhost1">✋🏼</div>
+        <div class="lux-ghost g2" id="luxGhost2">✋🏼</div>
+        <div class="lux-icon" id="luxIcon">✋🏼</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (() => {
+    const cta = document.getElementById("luxCta");
+    const stage = document.getElementById("luxStage");
+    const hand = document.getElementById("luxHand");
+    const g1 = document.getElementById("luxGhost1");
+    const g2 = document.getElementById("luxGhost2");
+    const nameRing = document.getElementById("luxNameRing");
+    const ripples = document.getElementById("luxRipples");
+    const falls = document.getElementById("luxFalls");
+    const glints = document.getElementById("luxGlints");
+    const sparks = document.getElementById("luxSparks");
+    const fingerFlash = document.getElementById("luxFingerFlash");
+    const palmPulse = document.getElementById("luxPalmPulse");
+    const holdProgress = document.getElementById("holdProgress");
+    if (!cta || !stage || !hand || !g1 || !g2 || !nameRing || !ripples || !falls || !glints || !sparks || !fingerFlash || !palmPulse || !holdProgress) return;
+
+    const preventCtx = (e) => e.preventDefault();
+    cta.addEventListener("contextmenu", preventCtx);
+    cta.addEventListener("touchstart", preventCtx, { passive: false });
+    cta.addEventListener("touchend", preventCtx, { passive: false });
+    cta.addEventListener("touchcancel", preventCtx, { passive: false });
+
+    const BOOKING_URL = "https://form.jotform.com/Tattoo_inkyvibestattoo/Ajanvaraus";
+    const HOLD_MS = 1100;
+
+    const clamp01 = (n) => Math.max(0, Math.min(1, n));
+    const rand = (min, max) => min + Math.random() * (max - min);
+
+    const HOLD_R = 86;
+    const HOLD_CIRC = 2 * Math.PI * HOLD_R;
+
+    const setVars = (press01) => {
+      cta.style.setProperty("--press", clamp01(press01).toFixed(3));
+    };
+
+    const setHoldProgress = (p01) => {
+      const p = clamp01(p01);
+      const dash = HOLD_CIRC;
+      const off = dash * (1 - p);
+      holdProgress.setAttribute("stroke-dasharray", `${dash} ${dash}`);
+      holdProgress.setAttribute("stroke-dashoffset", `${off}`);
+    };
+
+    const stagePointToLocal = (clientX, clientY) => {
+      const r = stage.getBoundingClientRect();
+      const x = clientX - (r.left + r.width / 2);
+      const y = clientY - (r.top + r.height / 2);
+      const max = r.width * 0.22;
+      const len = Math.hypot(x, y) || 1;
+      const k = Math.min(1, max / len);
+      return { x: x * k, y: y * k };
+    };
+
+    // ---------- Name ring ----------
+    const NAME_TEXT = "Anna\u00A0\u00A0Ylävitonen";
+
+    const buildCircularText = () => {
+      const rect = stage.getBoundingClientRect();
+      if (!rect.width || rect.width < 40) return false;
+
+      nameRing.innerHTML = "";
+
+      // ✅ moved a little more outside (requested)
+      const radius = rect.width * 0.535;
+
+      const chars = Array.from(NAME_TEXT);
+      const total = chars.length;
+
+      const arcDeg = Math.min(260, Math.max(185, total * 11.3));
+      const startDeg = -90 - arcDeg / 2;
+      const step = arcDeg / Math.max(1, total - 1);
+
+      for (let i = 0; i < total; i += 1) {
+        const ch = document.createElement("span");
+        ch.className = "ch";
+        ch.textContent = chars[i] === " " ? "\u00A0" : chars[i];
+
+        const deg = startDeg + i * step;
+        const a = deg * Math.PI / 180;
+        const x = Math.cos(a) * radius;
+        const y = Math.sin(a) * radius;
+        const rot = deg + 90;
+
+        ch.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg)`;
+        nameRing.appendChild(ch);
+      }
+
+      nameRing.classList.add("is-ready");
+      return true;
+    };
+
+    const tryBuildManyTimes = () => {
+      nameRing.classList.remove("is-ready");
+      let tries = 0;
+      const maxTries = 100;
+      const loop = () => {
+        tries += 1;
+        if (buildCircularText()) return;
+        if (tries < maxTries) requestAnimationFrame(loop);
+      };
+      requestAnimationFrame(loop);
+    };
+
+    tryBuildManyTimes();
+    if ("ResizeObserver" in window) {
+      const ro = new ResizeObserver(() => tryBuildManyTimes());
+      ro.observe(stage);
+    } else {
+      window.addEventListener("resize", tryBuildManyTimes, { passive: true });
+    }
+
+    // ---------- Effects ----------
+    const spawnRipples = (x, y, count = 2) => {
+      const baseDelay = 90;
+      for (let i = 0; i < count; i += 1) {
+        const el = document.createElement("div");
+        el.className = "lux-ripple go";
+        el.style.setProperty("--x", x.toFixed(2));
+        el.style.setProperty("--y", y.toFixed(2));
+        el.style.setProperty("--delay", `${i * baseDelay}ms`);
+        ripples.appendChild(el);
+        window.setTimeout(() => el.remove(), 1200 + i * baseDelay);
+      }
+    };
+
+    const spawnSparks = (x, y, count = 28) => {
+      for (let i = 0; i < count; i += 1) {
+        const el = document.createElement("div");
+        const d = Math.round(rand(0, 70));
+        const x0 = x + rand(-14, 14);
+        const y0 = y + rand(-14, 14);
+        const x3 = x + rand(-105, 105);
+        const y3 = y + rand(-105, 105);
+
+        el.className = "lux-spark";
+        const size = rand(1.8, 5.0);
+        el.style.width = `${size}px`;
+        el.style.height = `${size}px`;
+
+        sparks.appendChild(el);
+        window.setTimeout(() => {
+          el.style.opacity = "1";
+          el.style.transform = `translate(calc(-50% + ${x0}px), calc(-50% + ${y0}px))`;
+          requestAnimationFrame(() => {
+            el.style.opacity = "0";
+            el.style.transform = `translate(calc(-50% + ${x3}px), calc(-50% + ${y3}px))`;
+          });
+        }, d);
+
+        window.setTimeout(() => el.remove(), 920);
+      }
+    };
+
+    const spawnGlints = (x, y, count = 9) => {
+      for (let i = 0; i < count; i += 1) {
+        const el = document.createElement("div");
+        el.className = "lux-glint go";
+        el.style.setProperty("--x", (x + rand(-18, 18)).toFixed(2));
+        el.style.setProperty("--y", (y + rand(-18, 18)).toFixed(2));
+        el.style.setProperty("--a", `${rand(0, 180).toFixed(2)}deg`);
+        glints.appendChild(el);
+        window.setTimeout(() => el.remove(), 520);
+      }
+    };
+
+    // ✅ falling glitter (downwards)
+    const spawnFalls = (x, y, count = 16) => {
+      for (let i = 0; i < count; i += 1) {
+        const el = document.createElement("div");
+        el.className = "lux-fall go";
+
+        const x0 = x + rand(-18, 18);
+        const y0 = y + rand(-10, 10);
+
+        // drift + gravity-ish drop
+        const dx = rand(-22, 22);
+        const dy = rand(70, 130);
+
+        el.style.setProperty("--x", x0.toFixed(2));
+        el.style.setProperty("--y", y0.toFixed(2));
+        el.style.setProperty("--dx", dx.toFixed(2));
+        el.style.setProperty("--dy", dy.toFixed(2));
+        el.style.setProperty("--dur", `${Math.round(rand(780, 1150))}ms`);
+
+        const size = rand(2.2, 4.0);
+        el.style.width = `${size}px`;
+        el.style.height = `${size}px`;
+
+        falls.appendChild(el);
+        window.setTimeout(() => el.remove(), 1400);
+      }
+    };
+
+    const playFingerFlashAtTip = (hitX, hitY, approachAng) => {
+      const tipX = hitX + Math.cos(approachAng) * 12;
+      const tipY = hitY + Math.sin(approachAng) * 12 - 6;
+      fingerFlash.style.setProperty("--fx", tipX.toFixed(2));
+      fingerFlash.style.setProperty("--fy", tipY.toFixed(2));
+      fingerFlash.classList.remove("go");
+      void fingerFlash.offsetWidth;
+      fingerFlash.classList.add("go");
+    };
+
+    const playPalmPulse = (press01) => {
+      const p = clamp01(press01);
+      palmPulse.style.setProperty("--px", `${(6 + p * 2.2).toFixed(2)}px`);
+      palmPulse.style.setProperty("--py", `${(14 + p * 1.2).toFixed(2)}px`);
+      palmPulse.classList.remove("go");
+      void palmPulse.offsetWidth;
+      palmPulse.classList.add("go");
+    };
+
+    // ---------- Hand animation helpers ----------
+    const setHandWobbleVars = (toX, toY) => {
+      const dx = clamp01(Math.abs(toX) / 48);
+      const dy = clamp01(Math.abs(toY) / 48);
+      const dirX = toX >= 0 ? 1 : -1;
+      const dirY = toY >= 0 ? 1 : -1;
+
+      const rx0 = -28 + rand(-8, 6) + (dirY * dy * 7);
+      const ry0 =  34 * dirX + rand(-10, 10) + (dirX * dx * 10);
+      const rz0 =  rand(-22, 22);
+
+      const rxM = -16 + rand(-6, 7) + (dirY * dy * 6);
+      const ryM =  20 * dirX + rand(-6, 8) + (dirX * dx * 7);
+      const rzM =  rz0 * 0.55 + rand(-8, 8);
+
+      const rx1 = -10 + rand(-6, 8) + (dirY * dy * 5);
+      const ry1 =  14 * dirX + rand(-7, 9) + (dirX * dx * 6);
+      const rz1 =  rand(-12, 12);
+
+      const rx2 = rx1 + rand(-14, 14);
+      const ry2 = ry1 + rand(-18, 18);
+      const rz2 = rz1 + rand(-22, 22);
+
+      const rx3 = rx1 + rand(-8, 8);
+      const ry3 = ry1 + rand(-8, 8);
+      const rz3 = rz1 + rand(-10, 10);
+
+      const rx4 = rx1 * 0.30 + rand(-2.5, 2.5);
+      const ry4 = ry1 * 0.30 + rand(-2.5, 2.5);
+      const rz4 = rz1 * 0.30 + rand(-2.5, 2.5);
+
+      const rx5 = rand(-1.7, 1.7);
+      const ry5 = rand(-1.7, 1.7);
+      const rz5 = rand(-1.7, 1.7);
+
+      hand.style.setProperty("--rx0", rx0.toFixed(2));
+      hand.style.setProperty("--ry0", ry0.toFixed(2));
+      hand.style.setProperty("--rz0", rz0.toFixed(2));
+      hand.style.setProperty("--rxM", rxM.toFixed(2));
+      hand.style.setProperty("--ryM", ryM.toFixed(2));
+      hand.style.setProperty("--rzM", rzM.toFixed(2));
+      hand.style.setProperty("--rx1", rx1.toFixed(2));
+      hand.style.setProperty("--ry1", ry1.toFixed(2));
+      hand.style.setProperty("--rz1", rz1.toFixed(2));
+      hand.style.setProperty("--rx2", rx2.toFixed(2));
+      hand.style.setProperty("--ry2", ry2.toFixed(2));
+      hand.style.setProperty("--rz2", rz2.toFixed(2));
+      hand.style.setProperty("--rx3", rx3.toFixed(2));
+      hand.style.setProperty("--ry3", ry3.toFixed(2));
+      hand.style.setProperty("--rz3", rz3.toFixed(2));
+      hand.style.setProperty("--rx4", rx4.toFixed(2));
+      hand.style.setProperty("--ry4", ry4.toFixed(2));
+      hand.style.setProperty("--rz4", rz4.toFixed(2));
+      hand.style.setProperty("--rx5", rx5.toFixed(2));
+      hand.style.setProperty("--ry5", ry5.toFixed(2));
+      hand.style.setProperty("--rz5", rz5.toFixed(2));
+    };
+
+    const playSplay = (toX, toY) => {
+      const dirX = toX >= 0 ? 1 : -1;
+      const dirY = toY >= 0 ? 1 : -1;
+
+      g1.style.setProperty("--sx", ((2.8 + rand(0.4, 1.8)) * dirX).toFixed(2));
+      g1.style.setProperty("--sy", (((-2.2 + rand(-1.2, 0.6)) * dirY) * -1).toFixed(2));
+      g2.style.setProperty("--sx", ((-2.4 + rand(-1.0, 0.9)) * dirX).toFixed(2));
+      g2.style.setProperty("--sy", ((2.6 + rand(-0.6, 1.6)) * dirY).toFixed(2));
+
+      hand.classList.remove("splay");
+      void hand.offsetWidth;
+      hand.classList.add("splay");
+      window.setTimeout(() => hand.classList.remove("splay"), 240);
+    };
+
+    const playHighFiveHand = (toX, toY) => {
+      const fromX = -toX * 3.7 + rand(-12, 12);
+      const fromY = -toY * 3.7 + rand(-12, 12);
+      const midX = (toX * 0.55) + rand(-10, 10);
+      const midY = (toY * 0.55) + rand(-10, 10);
+
+      hand.style.setProperty("--fromX", fromX.toFixed(2));
+      hand.style.setProperty("--fromY", fromY.toFixed(2));
+      hand.style.setProperty("--midX", midX.toFixed(2));
+      hand.style.setProperty("--midY", midY.toFixed(2));
+      hand.style.setProperty("--toX", toX.toFixed(2));
+      hand.style.setProperty("--toY", toY.toFixed(2));
+
+      setHandWobbleVars(toX, toY);
+
+      hand.classList.remove("hi5");
+      void hand.offsetWidth;
+      hand.classList.add("hi5");
+    };
+
+    // ---------- Hold-to-open ----------
+    let holding = false;
+    let holdStart = 0;
+    let press = 0;
+    let raf = 0;
+    let last = { x: 0, y: 0 };
+    let rippleTimer = 0;
+    let navigating = false;
+
+    const go = () => {
+      if (navigating) return;
+      navigating = true;
+      try { window.location.assign(BOOKING_URL); return; } catch (_) {}
+      try { window.top.location.href = BOOKING_URL; return; } catch (_) {}
+      window.open(BOOKING_URL, "_blank", "noopener,noreferrer");
+    };
+
+    const tick = (now) => {
+      if (!holding) return;
+
+      const elapsed = now - holdStart;
+      const progress = clamp01(elapsed / HOLD_MS);
+      setHoldProgress(progress);
+
+      press = Math.min(1, press + 0.03);
+      setVars(press);
+
+      rippleTimer += 1;
+      if (rippleTimer >= 10) {
+        rippleTimer = 0;
+        spawnRipples(last.x, last.y, 1);
+        if (Math.random() < 0.38) spawnSparks(last.x, last.y, 6);
+        if (Math.random() < 0.32) spawnGlints(last.x, last.y, 2);
+        if (Math.random() < 0.28) spawnFalls(last.x, last.y, 4); // ✅ falling while holding
+      }
+
+      if (progress >= 1) {
+        go();
+        return;
+      }
+
+      raf = requestAnimationFrame(tick);
+    };
+
+    const startHold = () => {
+      holding = true;
+      press = 0;
+      rippleTimer = 0;
+      holdStart = performance.now();
+      cta.classList.add("is-holding");
+      setHoldProgress(0);
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
+    const reset = () => {
+      holding = false;
+      press = 0;
+      setVars(0);
+      rippleTimer = 0;
+      cta.classList.remove("is-holding");
+      setHoldProgress(0);
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+      navigating = false;
+    };
+
+    cta.addEventListener("pointerdown", (e) => {
+      startHold();
+      const pt = stagePointToLocal(e.clientX, e.clientY);
+      last = pt;
+
+      playHighFiveHand(pt.x, pt.y);
+      playSplay(pt.x, pt.y);
+      playPalmPulse(press);
+
+      spawnRipples(pt.x, pt.y, 3);
+      spawnGlints(pt.x, pt.y, 10);
+      spawnSparks(pt.x, pt.y, 34);
+
+      // ✅ falling glitter burst on click/press
+      spawnFalls(pt.x, pt.y, 18);
+
+      const approachAng = Math.atan2(pt.y, pt.x);
+      window.setTimeout(() => playFingerFlashAtTip(pt.x, pt.y, approachAng), 240);
+
+      if (typeof e.pressure === "number" && e.pressure > 0) {
+        press = Math.max(press, Math.min(1, e.pressure * 1.6));
+        setVars(press);
+      }
+    }, { passive: true });
+
+    cta.addEventListener("pointermove", (e) => {
+      if (!holding) return;
+      last = stagePointToLocal(e.clientX, e.clientY);
+
+      if (typeof e.pressure === "number" && e.pressure > 0) {
+        press = Math.max(press, Math.min(1, e.pressure * 1.6));
+        setVars(press);
+      }
+    }, { passive: true });
+
+    cta.addEventListener("pointerup", reset, { passive: true });
+    cta.addEventListener("pointercancel", reset, { passive: true });
+    cta.addEventListener("pointerleave", reset, { passive: true });
+
+    // hold-only (no tap open)
+    cta.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    setVars(0);
+    setHoldProgress(0);
+  })();
+  </script>
+</body>
+</html>
