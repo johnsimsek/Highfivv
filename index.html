@@ -26,8 +26,8 @@
     }
 
     .lux-cta{
-      --size: 130px;
-      --scaleAll: 0.85;
+      --size: 100px;
+      --scaleAll: 1;
       --press: 0;
 
       width: var(--size);
@@ -73,10 +73,10 @@
         linear-gradient(180deg, rgba(18,18,18,0.98), rgba(6,6,6,0.98));
 
       box-shadow:
-        0 22px 55px rgba(0,0,0,0.28),
-        0 10px 20px rgba(0,0,0,0.16),
+        0 15px 35px rgba(0,0,0,0.28),
+        0 8px 15px rgba(0,0,0,0.16),
         inset 0 1px 0 rgba(255,255,255,0.18),
-        inset 0 -10px 22px rgba(0,0,0,0.55);
+        inset 0 -8px 16px rgba(0,0,0,0.55);
 
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
@@ -110,7 +110,6 @@
       z-index: 2;
     }
 
-    /* circular name (JS placed) */
     .lux-nameRing{
       position:absolute;
       inset:0;
@@ -127,12 +126,12 @@
       top:50%;
       transform-origin: 0 0;
       font-weight: 750;
-      font-size: 11.2px;
+      font-size: 8.5px;
       letter-spacing: 1.1px;
       color: rgba(195, 200, 210, 0.92);
       text-shadow:
         0 1px 0 rgba(0,0,0,0.55),
-        0 10px 18px rgba(0,0,0,0.35);
+        0 8px 14px rgba(0,0,0,0.35);
       filter: drop-shadow(0 0 6px rgba(255,255,255,0.08));
       white-space: pre;
     }
@@ -191,7 +190,7 @@
         border-color: rgba(185,190,205,0.72);
         box-shadow: 0 0 24px rgba(210,215,230,0.14);
         transform: translate(calc(-50% + var(--x)*1px), calc(-50% + var(--y)*1px))
-          scale(calc(7.6 + var(--press)*3.2));
+          scale(calc(6.0 + var(--press)*2.8));
       }
     }
 
@@ -212,8 +211,8 @@
     .lux-fingerflash.go{ animation: luxFingerFlash 220ms ease-out 1; }
     @keyframes luxFingerFlash{
       0%{ opacity:0; transform: translate(calc(-50% + var(--fx)*1px), calc(-50% + var(--fy)*1px)) scale(0.45); filter: blur(0.9px); }
-      35%{ opacity:1; transform: translate(calc(-50% + var(--fx)*1px), calc(-50% + var(--fy)*1px)) scale(3.0); filter: blur(0.15px); }
-      100%{ opacity:0; transform: translate(calc(-50% + var(--fx)*1px), calc(-50% + var(--fy)*1px)) scale(4.2); filter: blur(1.1px); }
+      35%{ opacity:1; transform: translate(calc(-50% + var(--fx)*1px), calc(-50% + var(--fy)*1px)) scale(2.5); filter: blur(0.15px); }
+      100%{ opacity:0; transform: translate(calc(-50% + var(--fx)*1px), calc(-50% + var(--fy)*1px)) scale(3.5); filter: blur(1.1px); }
     }
 
     .lux-sparks{ position:absolute; inset:0; border-radius:999px; pointer-events:none; z-index:7; mix-blend-mode: screen; }
@@ -227,12 +226,11 @@
       will-change: transform, opacity, filter;
     }
 
-    /* sparkle streaks */
     .lux-glints{ position:absolute; inset:0; border-radius:999px; pointer-events:none; z-index:6; mix-blend-mode: screen; }
     .lux-glint{
       position:absolute;
       left:50%; top:50%;
-      width: 28px;
+      width: 24px;
       height: 2px;
       border-radius: 999px;
       opacity: 0;
@@ -252,7 +250,6 @@
       100%{ opacity:0; transform: translate(calc(-50% + var(--x)*1px), calc(-50% + var(--y)*1px)) rotate(var(--a)) scaleX(0.55); }
     }
 
-    /* ✅ NEW: falling glitter */
     .lux-falls{ position:absolute; inset:0; border-radius:999px; pointer-events:none; z-index:5; mix-blend-mode: screen; }
     .lux-fall{
       position:absolute;
@@ -294,20 +291,20 @@
       transform: translate3d(-50%, -50%, 0);
     }
     .lux-icon{
-      font-size:72px;
+      font-size: 46px;
       line-height:1;
       font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif;
-      filter: drop-shadow(0 10px 22px rgba(0,0,0,0.45));
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.45));
     }
 
     .lux-palmpulse{
-      --px: 6px;
-      --py: 14px;
+      --px: 4px;
+      --py: 10px;
       position:absolute;
       left:50%;
       top:50%;
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 999px;
       opacity: 0;
       pointer-events:none;
@@ -315,7 +312,7 @@
       mix-blend-mode: screen;
       transform: translate(calc(-50% + var(--px)), calc(-50% + var(--py))) scale(0.15);
       background: radial-gradient(circle, rgba(255,255,255,0.90) 0%, rgba(225,230,240,0.45) 35%, rgba(195,200,215,0.14) 60%, rgba(195,200,215,0.0) 75%);
-      box-shadow: 0 0 18px rgba(255,255,255,0.12), 0 0 30px rgba(220,225,235,0.10);
+      box-shadow: 0 0 14px rgba(255,255,255,0.12), 0 0 24px rgba(220,225,235,0.10);
       filter: blur(0.25px);
       will-change: transform, opacity, filter;
     }
@@ -323,13 +320,13 @@
     @keyframes luxPalmPulse{
       0%{ opacity: 0; transform: translate(calc(-50% + var(--px)), calc(-50% + var(--py))) scale(0.12); filter: blur(0.9px); }
       18%{ opacity: 1; transform: translate(calc(-50% + var(--px)), calc(-50% + var(--py))) scale(1.15); filter: blur(0.15px); }
-      100%{ opacity: 0; transform: translate(calc(-50% + var(--px)), calc(-50% + var(--py))) scale(7.2); filter: blur(1.2px); }
+      100%{ opacity: 0; transform: translate(calc(-50% + var(--px)), calc(-50% + var(--py))) scale(6.0); filter: blur(1.2px); }
     }
 
     .lux-ghost{
       position:absolute;
       left:0; top:0;
-      font-size:72px;
+      font-size: 46px;
       line-height:1;
       font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif;
       opacity:0;
@@ -338,8 +335,8 @@
       filter: blur(0.2px);
       will-change: transform, opacity, filter;
     }
-    .lux-ghost.g1{ color: rgba(255,255,255,0.80); text-shadow: 0 0 12px rgba(255,255,255,0.14); }
-    .lux-ghost.g2{ color: rgba(215,220,232,0.72); text-shadow: 0 0 16px rgba(235,240,250,0.10); }
+    .lux-ghost.g1{ color: rgba(255,255,255,0.80); text-shadow: 0 0 10px rgba(255,255,255,0.14); }
+    .lux-ghost.g2{ color: rgba(215,220,232,0.72); text-shadow: 0 0 12px rgba(235,240,250,0.10); }
 
     .lux-hand.splay .lux-ghost{ animation: luxSplay 170ms ease-out 1; }
     .lux-hand.splay .lux-ghost.g2{ animation-delay: 12ms; }
@@ -545,9 +542,9 @@
       if (!rect.width || rect.width < 40) return false;
 
       nameRing.innerHTML = "";
-
-      // ✅ moved a little more outside (requested)
-      const radius = rect.width * 0.535;
+      
+      // Yarıçap katsayısı %48.5'e çıkarıldı, yazı tam aralığa oturacaktır.
+      const radius = rect.width * 0.485;
 
       const chars = Array.from(NAME_TEXT);
       const total = chars.length;
@@ -649,7 +646,6 @@
       }
     };
 
-    // ✅ falling glitter (downwards)
     const spawnFalls = (x, y, count = 16) => {
       for (let i = 0; i < count; i += 1) {
         const el = document.createElement("div");
@@ -657,8 +653,6 @@
 
         const x0 = x + rand(-18, 18);
         const y0 = y + rand(-10, 10);
-
-        // drift + gravity-ish drop
         const dx = rand(-22, 22);
         const dy = rand(70, 130);
 
@@ -689,8 +683,8 @@
 
     const playPalmPulse = (press01) => {
       const p = clamp01(press01);
-      palmPulse.style.setProperty("--px", `${(6 + p * 2.2).toFixed(2)}px`);
-      palmPulse.style.setProperty("--py", `${(14 + p * 1.2).toFixed(2)}px`);
+      palmPulse.style.setProperty("--px", `${(4 + p * 2.2).toFixed(2)}px`);
+      palmPulse.style.setProperty("--py", `${(10 + p * 1.2).toFixed(2)}px`);
       palmPulse.classList.remove("go");
       void palmPulse.offsetWidth;
       palmPulse.classList.add("go");
@@ -822,7 +816,7 @@
         spawnRipples(last.x, last.y, 1);
         if (Math.random() < 0.38) spawnSparks(last.x, last.y, 6);
         if (Math.random() < 0.32) spawnGlints(last.x, last.y, 2);
-        if (Math.random() < 0.28) spawnFalls(last.x, last.y, 4); // ✅ falling while holding
+        if (Math.random() < 0.28) spawnFalls(last.x, last.y, 4);
       }
 
       if (progress >= 1) {
@@ -868,7 +862,6 @@
       spawnGlints(pt.x, pt.y, 10);
       spawnSparks(pt.x, pt.y, 34);
 
-      // ✅ falling glitter burst on click/press
       spawnFalls(pt.x, pt.y, 18);
 
       const approachAng = Math.atan2(pt.y, pt.x);
@@ -894,7 +887,6 @@
     cta.addEventListener("pointercancel", reset, { passive: true });
     cta.addEventListener("pointerleave", reset, { passive: true });
 
-    // hold-only (no tap open)
     cta.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
